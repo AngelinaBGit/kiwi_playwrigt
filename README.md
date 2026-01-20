@@ -47,10 +47,10 @@ Workflow file: `.github/workflows/tests.yml`
 
 ## Bot Protection Limitation
 
-Kiwi.com is protected by Cloudflare anti-bot security which blocks headless browsers at the homepage level.
-When running tests in headless mode, the site returns a security block page before any DOM is loaded, making UI automation impossible.
-
-To ensure realistic user behavior and stable execution, tests are executed in headed mode (`headless=False`) and 
-running browsers in headed mode via Xvfb in CI/CD
+Kiwi.com is protected by Cloudflare anti-bot security.
+The site blocks headless browsers, so tests running in headless mode will fail at the homepage.
+For stable execution, tests are run in headed mode (headless=False), both locally and in CI.
+In CI (GitHub Actions), Xvfb is used to provide a virtual display for the headed browser.
+Note: This is expected behavior for production travel websites and does not indicate an issue with the test implementation.
 
 
