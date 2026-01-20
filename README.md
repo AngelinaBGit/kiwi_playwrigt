@@ -1,15 +1,35 @@
-Tech stack:
-- Python
+This repository contains an automated QA test suite for Kiwi.com built with Python, Playwright, and pytest,
+following the Page Object Model (POM) and Gherkin-style BDD practices.
+
+The automation task focuses on verifying flight search functionality, including a "one-way flight search" scenario.
+
+## Tech stack:
+- Python 3.11+
 - pytest
 - pytest-bdd
 - Playwright
+- Docker
 
-Run tests:
-```bash
+## Setup
+Clone the repo:
+git clone https://github.com/AngelinaBGit/kiwi_playwrigt.git
+cd kiwi_playwrigt
+
+Install Python dependencies:
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+Install Playwright browsers:
+playwright install
+
+## Running Tests
+Run all tests:
+pytest
+
+Running Specific Test:
 pytest -m basic_search
 
 ## Run tests in Docker
-
 Build image:
 docker build -t kiwi-tests .
 
@@ -17,19 +37,20 @@ Run tests:
 docker run --rm kiwi-tests
 
 ## CI/CD
-
 Automated tests are executed using GitHub Actions.
 
-Pipeline is triggered on:
-- push to main branch
-- pull request to main branch
+Install dependencies:
+pip install -r requirements.txt
+playwright install
 
 Workflow file: `.github/workflows/tests.yml`
 
-Steps:
-- checkout repository
-- setup Python 3.12
-- install dependencies
-- install Playwright browsers
-- run pytest tests
+## Bot Protection Limitation
+
+Kiwi.com is protected by Cloudflare anti-bot security which blocks headless browsers at the homepage level.
+When running tests in headless mode, the site returns a security block page before any DOM is loaded, making UI automation impossible.
+
+To ensure realistic user behavior and stable execution, tests are executed in headed mode (`headless=False`) and 
+running browsers in headed mode via Xvfb in CI/CD
+
 
