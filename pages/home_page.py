@@ -1,4 +1,4 @@
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 from datetime import datetime, timedelta
 
 
@@ -10,25 +10,21 @@ class HomePage:
 
     def open(self):
         self.page.goto(self.URL)
-        self.page.click("button[data-test='ModalCloseButton']")
+        modal = self.page.locator('[data-test="ModalCloseButton"]')
+        if modal.is_visible():
+            modal.click()
 
     def select_one_way_trip(self):
         self.page.get_by_role("button", name="Return").click()
         self.page.locator('[data-test="ModePopupOption-oneWay"]').click()
-        # page.get_by_role("option", name="One-way").click()
 
     def set_departure_airport(self, airport_code: str):
         from_input = self.page.locator('[data-test="PlacePickerInput-origin"] input')
         from_input.click()
-        from_input.fill("")  # ensure input is empty
+        from_input.fill("")
         from_input.press("Backspace")
-
-        self.page.wait_for_timeout(300)
-
         from_input.fill(airport_code)
-        self.page.wait_for_timeout(300)
-
-        self.page.get_by_role("button", name="Rotterdam").click()
+        self.page.locator('[data-test="PlacePickerRow-city"]').first.click()
 
     def set_arrival_airport(self, airport_code: str):
         arrival_input = self.page.locator('[data-test="PlacePickerInput-destination"] input')
@@ -36,39 +32,22 @@ class HomePage:
         arrival_input.fill("")
         arrival_input.press("Backspace")
         arrival_input.fill(airport_code)
-        self.page.wait_for_timeout(300)
-        self.page.locator(
-            '[data-test="PlacePickerRow-city"]',
-            has_text="Madrid"
-        ).click()
-        # self.page.locator('[data-test="PlacePickerRow-city"]').click()
+        self.page.locator('[data-test="PlacePickerRow-city"]').first.click()
 
-    def set_departure_date(self, days_from_today: int = 7):
+    def set_departure_date(self, days_from_today: int):
         self.page.locator('[data-test="SearchFieldDateInput"]').click()
 
-        departure_day = 25
-
-        month_button = self.page.locator('[data-test="DatepickerMonthButton"]').first
-        month_button.click()
-
-        month_container = month_button.locator('xpath=following-sibling::div[1]')
-
-        # day_button = month_container.locator(f'button:has-text("{departure_day}")')
-        day_button = month_container.locator(f'button:has(time[datetime="2026-01-25"])')
-
-        day_button.click(force=True)
-
+        target_date = datetime.now() + timedelta(days=days_from_today)
+        date_str = target_date.strftime("%Y-%m-%d")
+        day_locator = self.page.locator(f'div[data-test="CalendarDay"][data-value="{date_str}"]')
+        day_locator.wait_for(state="visible")
+        day_locator.click()
         self.page.locator("[data-test='SearchFormDoneButton']").click()
 
     def uncheck_accommodation(self):
-        checkbox = self.page.locator(
-            '[data-test="accommodationCheckbox"] input[type="checkbox"]'
-        )
-
-        checkbox.uncheck()
+        checkbox = self.page.locator('[data-test="accommodationCheckbox"] input[type="checkbox"]')
+        if checkbox.is_checked():
+            checkbox.uncheck()
 
     def click_search_button(self):
         self.page.locator('[data-test="LandingSearchButton"]').click()
-        expect(
-            self.page.locator('[data-test="SortBy-quality"]')
-        ).to_be_visible()

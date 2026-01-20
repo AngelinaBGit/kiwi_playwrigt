@@ -1,6 +1,8 @@
 import pytest
 from playwright.sync_api import sync_playwright
 
+from pages.home_page import HomePage
+
 
 @pytest.fixture(scope="session")
 def playwright_instance():
@@ -23,13 +25,5 @@ def page(browser):
 
 
 @pytest.fixture
-def context(browser):
-    context = browser.new_context(
-        locale="en-US",
-        timezone_id="UTC",
-        geolocation={"latitude": 40.7128, "longitude": -74.0060},
-        permissions=["geolocation"]
-    )
-    yield context
-    context.close()
-
+def home(page):
+    return HomePage(page)
